@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull code
+        uses: actions/checkout@v4
+
+      - name: Build backend
+        run: docker build backend -t todo-backend
+
+      - name: Build frontend
+        run: docker build frontend -t todo-frontend
+
+      - name: Compose up
+        run: docker compose up -d
+
+      - name: Test backend
+        run: |
+          sleep 5
+          curl -f http://localhost:5000/tasks
