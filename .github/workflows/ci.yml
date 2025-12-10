@@ -1,27 +1,32 @@
-name: CI
+name: Build and Test App
 
+# Déclenche le pipeline à chaque push ou pull request sur la branche main
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Pull code
-        uses: actions/checkout@v4
+      # 1️⃣ Récupérer le code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Build backend
-        run: docker build backend -t todo-backend
+      # 2️⃣ Configurer Docker pour le build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Build frontend
-        run: docker build frontend -t todo-frontend
+      # 3️⃣ Build et démarrage des containers
+      - name: Build and start containers
+        run: ./build_image.sh
 
-      - name: Compose up
-        run: docker compose up -d
+      # 4️⃣ Test backend et frontend
+      - name: Test backend and frontend
+        run: ./test.sh
 
-      - name: Test backend
-        run: |
-          sleep 5
-          curl -f http://localhost:5000/tasks
